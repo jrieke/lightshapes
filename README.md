@@ -4,7 +4,7 @@ This is a fun little side project that I did for a party. It uses a projector to
 ![](images/demo.jpg)
 
 
-# How to
+## How to
 
 1. Cut out some shapes (polygons) from white cardboard (or glue white paper onto darker material), hang them up somewhere.
 2. Align the projector so that all shapes are covered by its image.
@@ -12,6 +12,6 @@ This is a fun little side project that I did for a party. It uses a projector to
 4. Run `python animate.py`, another window with the animations will show up. Again, move this window to your projector and make it fullscreen. The animations should now be aligned with the polygons you selected before, everything else should be black. Some of the animations are controlled via music, so make sure your laptop mic is not covered up.
 
 
-# Requirements
+## Requirements
 
 Python 3, pygame, sounddevice, numpy, matplotlib, shapely
