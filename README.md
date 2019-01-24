@@ -14,4 +14,4 @@ This is a fun little side project that I did for a party. It uses a projector to
 
 # Requirements
 
-Uses pygame for animations.
+Python 3, pygame
