@@ -1,5 +1,10 @@
 # lightshapes
-This is a fun little side project that I did for a party. It uses a projector to project animations on cardboard shapes. On the left you can see what it looks like in reality and on the right is the window that is shown on the projector (there are a couple more different effects of course):
+This is a fun little side project that I did for a party. It uses a projector to project animations on cardboard shapes like this (there are a couple more effects):
+
+![](images/party.gif)
+
+
+Here's a comparison of what it looks like in reality (left) and what is shown on the projector (right):
 
 ![](images/demo.png)
 
