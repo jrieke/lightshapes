@@ -4,7 +4,7 @@ This is a fun little side project that I did for a party. It uses a projector to
 ![](images/demo.jpg)
 
 
-And is the screen that is shown on the projector:
+And this is the screen that is shown on the projector:
 
 ![](images/screenshot.png)
 
