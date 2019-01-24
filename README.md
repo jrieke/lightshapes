@@ -4,9 +4,9 @@ This is a fun little side project that I did for a party. It uses a projector to
 ![](images/party.gif)
 
 
-Here's a comparison of what it looks like in reality (left) and what is shown on the projector (right):
+And this is the screen that is shown on the projector:
 
-![](images/demo.png)
+![](images/screenshot.png)
 
 
 ## How to
