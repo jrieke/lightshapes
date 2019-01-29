@@ -3,14 +3,15 @@ import pygame
 import json
 import colors
 
-print('To position the curosr: Click with the mouse or use arrow keys (shift+arrow keys for quick movement)')
+# --------- Settings --------------
+debug = True
+filename = 'polygons.json'
+width, height = 640, 480
+#width, height = 1920, 1080
+# ---------------------------------
 
 
-if len(sys.argv) > 1:
-    filename = sys.argv[1]
-else:
-    filename = 'polygons.json'
-    print('No filename provided, saving to polygons.json (will be overwritten).')
+print('To position the cursor: Click with the mouse or use arrow keys (shift+arrow keys for quick movement)')
 
 x, y = 0, 0
 polygons = []
@@ -18,7 +19,7 @@ current_polygon = []
 
 def save_polygons():
     with open(filename, 'w+') as f:
-        json.dump({'polygons': polygons}, f)
+        json.dump(polygons, f)
 
 # Initialize pygame window.
 pygame.init()

@@ -12,6 +12,13 @@ def smooth(x):
     return np.log(1 + x * 6.3) / 2
 
 
+def random_direction():
+    """Return a 2D vector in a random direction with norm 1."""
+    v = np.random.rand(2) - 0.5
+    v = v / np.linalg.norm(v)
+    return v
+
+
 class ChangingColorsAnimation:
 
     def __init__(self, polygon, start_hue=None, color_velocity=None, flash_with_volume=False, change_size_with_volume=False, which_volume=None):
@@ -46,7 +53,7 @@ class ChangingColorsAnimation:
             # TODO: Smooth this a bit.
             self.border_width = int((1-volume)*50)#int((1-volume)*10)#int(np.log(1 + (1 - volume) * 6.3) * 5)
 
-    def draw(self, screen):
+    def draw(self, screen, debug):
         color = 255 * np.array(colorsys.hsv_to_rgb(self.hue, self.saturation, self.value))
         #pygame.draw.polygon(screen, color, self.polygon)
         #pygame.draw.aalines(screen, color, True, self.polygon, False)
@@ -108,7 +115,7 @@ class MovingBarAnimation:
         #self.bar_left = intersection_points[0][0]
         #self.bar_right = intersection_points[1][0]
 
-    def draw(self, screen):
+    def draw(self, screen, debug):
         color = 255 * np.array(colorsys.hsv_to_rgb(self.hue, self.saturation, self.value))
 
         pygame.gfxdraw.filled_polygon(screen, self.polygon, color)
@@ -117,7 +124,8 @@ class MovingBarAnimation:
             pygame.gfxdraw.box(screen, [self.bbox_left, self.bbox_top + self.relative_height * self.bbox_height, self.bbox_width, self.bbox_height - self.relative_height * self.bbox_height], colors.black)
 
         #pygame.gfxdraw.hline(screen, int(self.bar_left), int(self.bar_right), int(self.bar_y), color)
-        pygame.gfxdraw.aapolygon(screen, self.polygon, color)
+        if debug:
+            pygame.gfxdraw.aapolygon(screen, self.polygon, color)
 
 
 
@@ -161,7 +169,7 @@ class FadeAnimation:
                 self.state = 'off'
                 self.reset_wait()
 
-    def draw(self, screen):
+    def draw(self, screen, debug):
         pygame.draw.polygon(screen, 255 * np.array(colorsys.hsv_to_rgb(self.hue, self.saturation, self.value)), self.polygon)
 
 
@@ -206,7 +214,7 @@ class EdgeAnimation:
             if len(self.edge_polygon) == 0:
                 self.reset()
 
-    def draw(self, screen):
+    def draw(self, screen, debug):
         if len(self.edge_polygon) > 2:
             pygame.gfxdraw.aapolygon(screen, self.edge_polygon.astype(int), colors.white)
 
@@ -244,6 +252,7 @@ class ShootingBallsAnimation:
         # Create new balls (amount depends on volume).
         for i in range(np.random.poisson(8 * volumes[self.which_volume]**4)):
             self.ball_positions.append(self.center.copy())
+            # TODO: Replace by random_direction() * 0.2
             velocity = np.random.rand(2) - 0.5
             velocity = velocity / np.linalg.norm(velocity) * 0.2
             self.ball_velocities.append(velocity)
@@ -254,8 +263,55 @@ class ShootingBallsAnimation:
         #    self.dot_radii[:] = np.log(1 + volume * 10) * 5
         #    self.dot_radii = self.dot_radii.clip(3, 10)
 
-    def draw(self, screen):
+    def draw(self, screen, debug):
         for pos, hue in zip(self.ball_positions, self.ball_hues):
             #pygame.gfxdraw.filled_circle(screen, int(pos[0]), int(pos[1]), 3, colors.white)
             pygame.gfxdraw.filled_circle(screen, int(pos[0]), int(pos[1]), 3, 255 * np.array(colorsys.hsv_to_rgb(hue, 1, 1)))
-        pygame.gfxdraw.aapolygon(screen, self.polygon, colors.white)
+        if debug:
+            pygame.gfxdraw.aapolygon(screen, self.polygon, colors.white)
+
+
+class RedBlueAnimation:
+
+    def __init__(self, polygons, velocity=0.1):
+        self.min_x = np.min([np.asarray(polygon)[:, 0].min() for polygon in polygons])
+        self.max_x = np.max([np.asarray(polygon)[:, 0].max() for polygon in polygons])
+        self.min_y = np.min([np.asarray(polygon)[:, 1].min() for polygon in polygons])
+        self.max_y = np.max([np.asarray(polygon)[:, 1].max() for polygon in polygons])
+        self.red_pos = np.array([np.random.randint(self.min_x, self.max_x), np.random.randint(self.min_y, self.max_y)], dtype=float)
+        self.red_velocity = random_direction()
+        self.blue_pos = np.array([np.random.randint(self.min_x, self.max_x), np.random.randint(self.min_y, self.max_y)], dtype=float)
+        self.blue_velocity = random_direction()
+        self.velocity = velocity
+        self.polygons = polygons
+        self.polygon_centers = [np.mean(p, axis=0) for p in polygons]
+
+    def update(self, elapsed_ms, volume):
+        #print(self.red_pos, self.width, self.height)
+        new_red_pos = self.red_pos + self.velocity * self.red_velocity * elapsed_ms
+        while new_red_pos[0] < self.min_x or new_red_pos[0] > self.max_x or new_red_pos[1] < self.min_y or new_red_pos[1] > self.max_y:
+            self.red_velocity = random_direction()
+            new_red_pos = self.red_pos + self.velocity * self.red_velocity * elapsed_ms
+            #print('red changed direction')
+        self.red_pos = new_red_pos
+
+        new_blue_pos = self.blue_pos + self.velocity * self.blue_velocity * elapsed_ms
+        while new_blue_pos[0] < self.min_x or new_blue_pos[0] > self.max_x or new_blue_pos[1] < self.min_y or new_blue_pos[1] > self.max_y:
+            self.blue_velocity = random_direction()
+            new_blue_pos = self.blue_pos + self.velocity * self.blue_velocity * elapsed_ms
+        self.blue_pos = new_blue_pos
+
+    def draw(self, screen, debug):
+        if debug:
+            pygame.gfxdraw.filled_circle(screen, int(self.blue_pos[0]), int(self.blue_pos[1]), 3, colors.blue)
+            pygame.gfxdraw.filled_circle(screen, int(self.red_pos[0]), int(self.red_pos[1]), 3, colors.red)
+            pygame.gfxdraw.rectangle(screen, (self.min_x, self.min_y, self.max_x-self.min_x, self.max_y-self.min_y), colors.white)
+
+        for polygon, center in zip(self.polygons, self.polygon_centers):
+            distance_to_red = np.linalg.norm(self.red_pos - center)
+            distance_to_blue = np.linalg.norm(self.blue_pos - center)
+            #print(distance_to_red, distance_to_blue)
+            color = (255 * np.exp(-0.005 * distance_to_red), 0, 255 * np.exp(-0.005 * distance_to_blue))
+            #print(color)
+            pygame.gfxdraw.filled_polygon(screen, polygon, color)
+            pygame.gfxdraw.aapolygon(screen, polygon, color)

@@ -10,23 +10,27 @@ import matplotlib.path
 import sounddevice as sd
 import shapely.geometry
 
-from animations import ChangingColorsAnimation, MovingBarAnimation, FadeAnimation, EdgeAnimation, ShootingBallsAnimation
+from animations import ChangingColorsAnimation, MovingBarAnimation, FadeAnimation, EdgeAnimation, ShootingBallsAnimation, RedBlueAnimation
 import utils
 
-# Load polygons.
-if len(sys.argv) > 1:
-    filename = sys.argv[1]
-else:
-    filename = 'polygons.json'
-    print('No filename provided, reading polygons from polygons.json.')
 
+# --------- Settings --------------
+debug = False
+filename = 'polygons.json'
+width, height = 640, 480
+#width, height = 1920, 1080
+time_between_animations = 10  # seconds
+# ---------------------------------
+
+
+# Load polygons.
 with open(filename, 'r') as f:
-    polygons = json.load(f)['polygons']
+    polygons = json.load(f)
+    print(f'Found {len(polygons)} polygons:', polygons)
 
 # Initialize pygame window.
 pygame.init()
-size = width, height = 640, 480
-screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
 
 # Initialize timer, see https://stackoverflow.com/questions/13591949/in-pygame-normalizing-game-speed-across-different-fps-values
 clock = pygame.time.Clock()
@@ -40,7 +44,7 @@ def random_animation():
     next_animation()
 
 def next_animation():
-    global current_animations, animation_index
+    global current_animations, animation_index, ms_since_last_change
     if animation_index == 0:
         current_animations = [FadeAnimation(polygon) for polygon in polygons]
     elif animation_index == 1:
@@ -51,22 +55,27 @@ def next_animation():
         current_animations = [EdgeAnimation(polygon, velocity=10, reverse=np.random.choice([True, False])) for polygon in polygons]
     elif animation_index == 4:
         current_animations = [ShootingBallsAnimation(polygon, which_volume='all') for i, polygon in enumerate(polygons)]
+    elif animation_index == 5:
+        current_animations = [RedBlueAnimation(polygons)]
     animation_index += 1
-    if animation_index > 4:
+    if animation_index > 5:
         animation_index = 0
+    ms_since_last_change = 0
 
 next_animation()
+#current_animations = [RedBlueAnimation(polygons)]
 
 # Game loop.
 with utils.Audio() as audio:
-    while 1:
-
-        # Housekeeping.
+    while True:
+        # Manage clock and exit.
         elapsed_ms = clock.tick(60)  # limit fps to 60
         ms_since_last_change += elapsed_ms
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+                next_animation()
 
         # Get input volume.
         volume, volume_low, volume_high = audio.volume(normalize_to='average', print_=True)
@@ -78,10 +87,9 @@ with utils.Audio() as audio:
         # Draw everything.
         screen.fill(colors.black)
         for animation in current_animations:
-            animation.draw(screen)
+            animation.draw(screen, debug)
         pygame.display.flip()
 
         # Change to next animation periodically.
-        if ms_since_last_change > 10000:
-            ms_since_last_change = 0
+        if ms_since_last_change > time_between_animations * 1000:
             next_animation()

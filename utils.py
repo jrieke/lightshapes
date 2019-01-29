@@ -3,7 +3,6 @@ import sounddevice as sd
 import matplotlib.pyplot as plt
 
 
-
 class Audio(sd.InputStream):
 
     def __init__(self):
