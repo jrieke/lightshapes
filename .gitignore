@@ -1,4 +1,5 @@
-.pyc
+*.pyc
+.DS_Store
 polygons.json
 many-polygons.json
 __pycache__

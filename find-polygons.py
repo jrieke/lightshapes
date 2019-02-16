@@ -6,8 +6,8 @@ import colors
 # --------- Settings --------------
 debug = True
 filename = 'polygons.json'
-width, height = 640, 480
-#width, height = 1920, 1080
+#width, height = 640, 480
+width, height = 1920, 1080
 # ---------------------------------
 
 
@@ -23,8 +23,7 @@ def save_polygons():
 
 # Initialize pygame window.
 pygame.init()
-size = width, height = 640, 480
-screen = pygame.display.set_mode(size, pygame.RESIZABLE)#, pygame.FULLSCREEN)
+screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)#, pygame.FULLSCREEN)
 
 while 1:
     for event in pygame.event.get():

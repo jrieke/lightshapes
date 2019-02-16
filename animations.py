@@ -7,7 +7,6 @@ import matplotlib as mpl
 import matplotlib.path
 #import shapely.geometry
 
-
 def smooth(x):
     return np.log(1 + x * 6.3) / 2
 

@@ -17,9 +17,9 @@ import utils
 # --------- Settings --------------
 debug = False
 filename = 'polygons.json'
-width, height = 640, 480
-#width, height = 1920, 1080
-time_between_animations = 10  # seconds
+#width, height = 640, 480
+width, height = 1920, 1080
+time_between_animations = 2  # seconds
 # ---------------------------------
 
 
@@ -56,7 +56,7 @@ def next_animation():
     elif animation_index == 4:
         current_animations = [ShootingBallsAnimation(polygon, which_volume='all') for i, polygon in enumerate(polygons)]
     elif animation_index == 5:
-        current_animations = [RedBlueAnimation(polygons)]
+        current_animations = [RedBlueAnimation(polygons, velocity=0.5)]
     animation_index += 1
     if animation_index > 5:
         animation_index = 0
