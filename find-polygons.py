@@ -4,10 +4,10 @@ import json
 import colors
 
 # --------- Settings --------------
-debug = True
+debug = False
 filename = 'polygons.json'
-width, height = 640, 480
-#width, height = 1920, 1080
+#width, height = 640, 480
+width, height = 1920, 1080
 # ---------------------------------
 
 
